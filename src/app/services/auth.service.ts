@@ -36,14 +36,23 @@ export class AuthService {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       if (user) {
-       
         this.loadUserData(user);
       }
-    } catch (error) {
+    } catch (error: any) { 
       console.error('Erro ao fazer login no Firebase', error);
-      throw error;
+  
+      
+      if (error.code === 'auth/wrong-password') {
+        alert('Senha inválida. Por favor, tente novamente.');
+      } else if (error.code === 'auth/user-not-found') {
+        alert('Usuário não encontrado. Verifique o e-mail e tente novamente.');
+      } else {
+        alert('Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.');
+      }
+  
+      throw error; 
     }
   }
 
