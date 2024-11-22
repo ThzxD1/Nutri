@@ -3,6 +3,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'; 
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { AlertController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,8 @@ export class AuthService {
 
   private firestore = getFirestore(); 
 
-  constructor(private router: Router) {
+
+  constructor(private router: Router, private alertController: AlertController) {
     this.initializeAuthListener(); 
   }
 
@@ -31,28 +33,37 @@ export class AuthService {
   }
 
   
+  
   async login(email: string, password: string): Promise<void> {
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       if (user) {
         this.loadUserData(user);
       }
-    } catch (error: any) { 
+    } catch (error: any) {
       console.error('Erro ao fazer login no Firebase', error);
-  
-      
-      if (error.code === 'auth/wrong-password') {
-        alert('Senha inválida. Por favor, tente novamente.');
+
+      // Mostra um alerta personalizado baseado no código de erro
+      let message = 'Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.';
+      if (error.code === 'auth/invalid-credential') {
+        message = 'Senha inválida. Por favor, tente novamente.';
       } else if (error.code === 'auth/user-not-found') {
-        alert('Usuário não encontrado. Verifique o e-mail e tente novamente.');
-      } else {
-        alert('Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.');
+        message = 'Usuário não encontrado. Verifique o e-mail e tente novamente.';
       }
-  
-      throw error; 
+
+      // Exibe o alerta usando AlertController
+      const alert = await this.alertController.create({
+        header: 'Erro de Login',
+        subHeader: 'Não foi possível acessar sua conta',
+        message: message,
+        buttons: ['OK'],
+      });
+
+      await alert.present();
+      throw error; // Opcional: propagar o erro, se necessário
     }
   }
 
