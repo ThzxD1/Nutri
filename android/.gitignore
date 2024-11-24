@@ -8,6 +8,11 @@
 
 # Files for the ART/Dalvik VM
 *.dex
+
+# Java class files
+*.class
+
+# Generated files
 bin/
 gen/
 out/
