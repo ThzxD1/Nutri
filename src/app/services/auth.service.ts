@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth'; // Funções modulares do Firebase Auth
+import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth'; 
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore'; 
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
@@ -46,7 +46,7 @@ export class AuthService {
     } catch (error: any) {
       console.error('Erro ao fazer login no Firebase', error);
 
-      // Mostra um alerta personalizado baseado no código de erro
+      
       let message = 'Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.';
       if (error.code === 'auth/invalid-credential') {
         message = 'Senha inválida. Por favor, tente novamente.';
@@ -54,7 +54,7 @@ export class AuthService {
         message = 'Usuário não encontrado. Verifique o e-mail e tente novamente.';
       }
 
-      // Exibe o alerta usando AlertController
+      
       const alert = await this.alertController.create({
         header: 'Erro de Login',
         subHeader: 'Não foi possível acessar sua conta',
@@ -63,7 +63,7 @@ export class AuthService {
       });
 
       await alert.present();
-      throw error; // Opcional: propagar o erro, se necessário
+      throw error; 
     }
   }
 
@@ -113,6 +113,40 @@ export class AuthService {
     }
   }
 
+  async recsenha(email: string): Promise<void> {
+    try {
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+              
+  
+      const alert = await this.alertController.create({
+        header: 'Recuperação de Senha',
+        message: 'Um e-mail para redefinir sua senha foi enviado para ' + email,
+        buttons: ['OK'],
+      });
+  
+      await alert.present();
+    } catch (error: any) {
+      console.error('Erro ao enviar e-mail de recuperação de senha', error);
+  
+      let message = 'Ocorreu um erro ao tentar recuperar sua senha. Tente novamente mais tarde.';
+      if (error.code === 'auth/user-not-found') {
+        message = 'Usuário não encontrado. Verifique o e-mail e tente novamente.';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'E-mail inválido. Por favor, insira um endereço de e-mail válido.';
+      }
+  
+      const alert = await this.alertController.create({
+        header: 'Erro',
+        message,
+        buttons: ['OK'],
+      });
+  
+      await alert.present();
+      throw error;
+    }
+  }
+  
 
   async logout() {
     const auth = getAuth();

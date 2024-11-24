@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      NU.TRI
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Sair
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content >
+
+  <ion-content class="ion-padding">
+    <div *ngFor="let alarme of alarmes">
+  <div *ngIf="alarme.active">
+    <ion-card class="card-xd" style=" margin-top: 20px;">
+      <ion-card-header>
+        <ion-card-title>{{ alarme.name }} - Alarme Ativo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>{{ alarme.message }}</p>
+
+        <ion-button class="custom-button" fill="clear" (click)="stopAlarm(alarme)">Parar Alarme</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</div>
+
+
+    <ion-card class="card-xd" style=" margin-top: 20px;">
+      <ion-card-header>
+        <ion-card-title>Configurar Novo Alarme</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Defina o intervalo e a mensagem do novo alarme:</p>
+        <ion-input [(ngModel)]="newAlarm.name" placeholder="Nome do Alarme"></ion-input>
+        <ion-input [(ngModel)]="newAlarm.message" placeholder="Mensagem do Alarme"></ion-input>
+        <ion-input [(ngModel)]="newAlarm.timeMinutes" type="number" placeholder="Intervalo em minutos" min="1" max="120"></ion-input>
+        <ion-input [(ngModel)]="newAlarm.timeSeconds" type="number" placeholder="Intervalo em segundos" min="0" max="59"></ion-input>
+        <ion-button class="custom-button" fill="clear" expand="full" (click)="startNewAlarm()">Iniciar Novo Alarme</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </ion-content>
+</ion-content>
