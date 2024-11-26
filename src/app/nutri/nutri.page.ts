@@ -11,10 +11,9 @@ import { Router } from '@angular/router';
   styleUrls: ['./nutri.page.scss'],
 })
 export class NutriPage implements OnInit {
-  user: any = {}; 
-  foodQuery: string = '';
-  foodInfo: any = null;
+  user: any = {};
   question: string = '';
+  messages: { role: string; content: string }[] = []; // Armazena mensagens do chat
 
   constructor(
     private alertController: AlertController,
@@ -26,7 +25,6 @@ export class NutriPage implements OnInit {
     this.loadUserData();
   }
 
- 
   async loadUserData() {
     try {
       const auth = getAuth();
@@ -38,39 +36,45 @@ export class NutriPage implements OnInit {
         const userDoc = await getDoc(userRef);
 
         if (userDoc.exists()) {
-          this.user = userDoc.data(); 
+          this.user = userDoc.data();
           console.log('Dados do usuário carregados:', this.user);
         } else {
           console.warn('Nenhum dado encontrado para o usuário no Firestore');
         }
       } else {
         console.warn('Usuário não está logado.');
-        this.router.navigate(['/login']); 
+        this.router.navigate(['/login']);
       }
     } catch (error) {
       console.error('Erro ao carregar os dados do usuário:', error);
     }
   }
 
-
   logout() {
     const auth = getAuth();
     signOut(auth)
       .then(() => {
         console.log('Usuário deslogado com sucesso.');
-        this.router.navigate(['/login']); 
+        this.router.navigate(['/login']);
       })
       .catch((error) => {
         console.error('Erro ao deslogar:', error);
       });
   }
 
- 
   submit() {
+    if (!this.question.trim()) {
+      console.warn('Pergunta vazia.');
+      return;
+    }
+
     console.log('Pergunta enviada:', this.question);
 
+    // Adiciona a pergunta à lista de mensagens
+    this.messages.push({ role: 'user', content: this.question });
+
     const cohere = new CohereClientV2({
-      token: 'H18FZBiFr2OVCFnYfkBcFZ88vByi146XwjXkInZX', 
+      token: 'H18FZBiFr2OVCFnYfkBcFZ88vByi146XwjXkInZX',
     });
 
     cohere
@@ -85,25 +89,20 @@ export class NutriPage implements OnInit {
       })
       .then((response: any) => {
         console.log('Resposta da API:', response);
-        this.showAnswer(response);
+        this.addResponseToChat(response);
       })
       .catch((error) => {
         console.error('Erro na requisição para a API:', error);
       });
+
+    this.question = ''; // Limpa o campo de entrada
   }
 
-  
-  async showAnswer(response: any) {
+  addResponseToChat(response: any) {
     const responseText =
       response?.message?.content?.[0]?.text || 'Nenhuma resposta encontrada.';
 
-    const alert = await this.alertController.create({
-      header: 'Resposta da API',
-      subHeader: 'Resultado da consulta',
-      message: responseText,
-      buttons: ['OK'],
-    });
-
-    await alert.present();
+    // Adiciona a resposta à lista de mensagens
+    this.messages.push({ role: 'bot', content: responseText });
   }
 }

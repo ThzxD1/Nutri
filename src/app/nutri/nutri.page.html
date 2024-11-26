@@ -3,9 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>
-      NU.TRI
-    </ion-title>
+    <ion-title>NU.TRI</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="logout()">
         <ion-icon name="log-out-outline"></ion-icon>
@@ -16,8 +14,30 @@
 </ion-header>
 
 <ion-content>
-
-  <ion-input [(ngModel)]="question" placeholder="Digite o que deseja saber sobre algum alimento"></ion-input>
-  <ion-button style="width: 50%;" (click)="submit()" class="custom-button" fill="clear" >Procurar</ion-button>
-  
+  <ion-input
+    [(ngModel)]="question"
+    placeholder="Digite sua pergunta sobre alimentação"
+    style="margin-top: 16px;"
+  ></ion-input>
+  <ion-button
+    style="width: 100%; margin-top: 8px;"
+    (click)="submit()"
+    fill="solid"
+  >
+    Enviar
+  </ion-button>
+  <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+    <div *ngFor="let message of messages">
+      <div *ngIf="message.role === 'user'" style="text-align: right; margin-bottom: 8px;">
+        <div style="display: inline-block; background: #d1f5ff; padding: 8px 12px; border-radius: 16px;">
+          {{ message.content }}
+        </div>
+      </div>
+      <div *ngIf="message.role === 'bot'" style="text-align: left; margin-bottom: 8px;">
+        <div style="display: inline-block; background: #f1f0f0; padding: 8px 12px; border-radius: 16px;">
+          {{ message.content }}
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
